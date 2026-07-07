@@ -8,21 +8,35 @@ from .llm import LLM
 class RAGPipeline:
 
     def __init__(self):
+        self.embedder = None
+        self.vector_store = None
+        self.retriever = None
+        self.prompt_builder = None
+        self.llm = None
 
-        self.embedder = EmbeddingModel()
+    def initialize(self):
+        if self.embedder is None:
+            self.embedder = EmbeddingModel()
 
-        self.vector_store = VectorStore()
+        if self.vector_store is None:
+            self.vector_store = VectorStore()
 
-        self.retriever = Retriever(
-            self.vector_store,
-            self.embedder
-        )
+        if self.retriever is None:
+            self.retriever = Retriever(
+                self.vector_store,
+                self.embedder
+            )
 
-        self.prompt_builder = PromptBuilder()
+        if self.prompt_builder is None:
+            self.prompt_builder = PromptBuilder()
 
-        self.llm = LLM()
+        if self.llm is None:
+            self.llm = LLM()
 
     def ask(self, question):
+
+        # Initialize components only when needed
+        self.initialize()
 
         # Retrieve relevant chunks
         contexts = self.retriever.retrieve(question)
@@ -34,6 +48,6 @@ class RAGPipeline:
         )
 
         # Generate response
-        answer,usage = self.llm.generate(prompt)
+        answer, usage = self.llm.generate(prompt)
 
-        return answer,usage
+        return answer, usage

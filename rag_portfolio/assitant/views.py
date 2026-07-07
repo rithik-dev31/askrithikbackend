@@ -34,7 +34,16 @@ from django.views.decorators.csrf import csrf_exempt
 from .rag.pipeline import RAGPipeline
 
 
-pipeline = RAGPipeline()
+_pipeline = None
+
+def get_pipeline():
+    global _pipeline
+
+    if _pipeline is None:
+        _pipeline = RAGPipeline()
+
+    return _pipeline
+
 @csrf_exempt
 def chat(request):
 
@@ -111,7 +120,7 @@ def chat(request):
             )
 
         # --- LLM call now returns (answer, usage_dict) ---
-        answer, usage = pipeline.ask(question)
+        answer, usage = get_pipeline().ask(question)
 
         # --- Log this request and auto-toggle is_active based on rolling limits ---
         updated_status = record_usage(usage, session_key=request.session.session_key)
