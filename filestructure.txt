@@ -49838,8 +49838,8 @@
             |-- urls.cpython-310.pyc
             |-- wsgi.cpython-310.pyc
             |-- __init__.cpython-310.pyc
-    |-- requirements.txt
     |-- test_llm.py
     |-- test_loader.py
     |-- test_rag.py
     |-- test_retriever.py
+|-- requirements.txt
