@@ -1,0 +1,29 @@
+﻿LinkedIn : https://www.linkedin.com/in/rithik-e/
+Github: https://github.com/rithik-dev31
+Portfolio : https://mlwithrithik.netlify.app/
+Email : rithik.devpro@gmail.com
+
+
+Porjects:
+
+
+CareMate — Mental Health AI  :
+Github Repo : https://github.com/rithik-dev31/caremate
+
+
+FireGuard AI:
+Github Repo : https://github.com/rithik-dev31/FireGuard_AI
+
+EduTube — Learning Platform:
+Github Repo : https://github.com/rithik-dev31/django_final_project
+
+
+Certifications:
+
+GenAI & RAG-Based Systems Workshop
+GUVI  
+Credentail: https://www.guvi.in/verify-certificate?id=675pX0k6I05r81Eh14
+
+Frontend Web Development
+Udemy
+Credentail : https://www.udemy.com/certificate/UC-d2213ffa-a7f2-4d2f-9f26-163e4febeadd/

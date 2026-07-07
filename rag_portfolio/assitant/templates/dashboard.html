@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ask Rithik — Analytics</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --bg: #fbfbfc;
+    --grid-line: rgba(15,23,42,0.045);
+    --ink: #0f1115;
+    --ink-soft: #5b6270;
+    --ink-faint: #9aa1ac;
+    --line: #e7e9ee;
+    --card: #ffffff;
+    --accent: #2f5bff;
+    --accent-soft: #eef2ff;
+    --good: #16a34a;
+    --warn: #d97706;
+    --bad: #dc2626;
+    --radius: 14px;
+    --shadow-sm: 0 1px 2px rgba(15,23,42,0.04);
+    --shadow-md: 0 8px 24px -8px rgba(15,23,42,0.10);
+  }
+
+  *{ box-sizing: border-box; margin:0; padding:0; }
+  html,body{ min-height:100%; }
+  body{
+    font-family:'Inter', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    background-image:
+      linear-gradient(var(--grid-line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+    background-size: 32px 32px;
+    -webkit-font-smoothing: antialiased;
+  }
+  .mono{ font-family:'JetBrains Mono', monospace; }
+
+  /* ============ LOGIN ============ */
+  #login-section{
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    position:relative;
+  }
+  .login-card{
+    background: var(--card);
+    border:1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 44px 40px;
+    width: 360px;
+    box-shadow: var(--shadow-md);
+    position:relative;
+    overflow:hidden;
+  }
+  .login-card::before{
+    content:"";
+    position:absolute; top:0; left:0; right:0; height:3px;
+    background: linear-gradient(90deg, var(--accent), #7c9cff);
+  }
+  .login-brand{
+    display:flex; align-items:center; gap:10px; margin-bottom:28px;
+  }
+  .login-brand .dot{
+    width:9px; height:9px; border-radius:50%;
+    background: var(--accent);
+    box-shadow: 0 0 0 4px var(--accent-soft);
+  }
+  .login-brand span{ font-size:13px; font-weight:600; color:var(--ink-soft); letter-spacing:0.02em; text-transform:uppercase; }
+
+  .login-card h2{ font-size:22px; font-weight:700; margin-bottom:6px; letter-spacing:-0.01em; }
+  .login-card p{ color:var(--ink-faint); font-size:13.5px; margin-bottom:28px; }
+
+  .field{ margin-bottom:14px; }
+  .field label{
+    display:block; font-size:11.5px; font-weight:600; color:var(--ink-soft);
+    text-transform:uppercase; letter-spacing:0.04em; margin-bottom:6px;
+  }
+  .field input{
+    width:100%;
+    padding: 11px 13px;
+    border:1px solid var(--line);
+    border-radius: 9px;
+    font-size:14px;
+    font-family:inherit;
+    background:#fcfcfd;
+    transition: border-color .15s, box-shadow .15s, background .15s;
+  }
+  .field input:focus{
+    outline:none;
+    border-color: var(--accent);
+    background:#fff;
+    box-shadow: 0 0 0 3px var(--accent-soft);
+  }
+
+  .login-card button{
+    width:100%;
+    padding: 12px;
+    margin-top: 8px;
+    background: var(--ink);
+    color:#fff;
+    border:none;
+    border-radius: 9px;
+    font-size:14px;
+    font-weight:600;
+    cursor:pointer;
+    transition: transform .12s ease, background .15s;
+    position:relative;
+  }
+  .login-card button:hover{ background:#000; }
+  .login-card button:active{ transform: scale(0.98); }
+  .login-card button:disabled{ opacity:0.6; cursor:not-allowed; }
+
+  #login-error{
+    color: var(--bad);
+    background: #fef2f2;
+    border:1px solid #fecaca;
+    padding:9px 12px;
+    border-radius:8px;
+    font-size:12.5px;
+    margin-top:14px;
+    display:none;
+  }
+
+  /* ============ DASHBOARD ============ */
+  #dashboard-section{ display:none; }
+
+  .topbar{
+    position: sticky; top:0; z-index:20;
+    background: rgba(251,251,252,0.85);
+    backdrop-filter: blur(10px);
+    border-bottom:1px solid var(--line);
+    padding: 16px 32px;
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .topbar-left{ display:flex; align-items:center; gap:12px; }
+  .topbar-left .dot{
+    width:9px; height:9px; border-radius:50%;
+    background: var(--good);
+    box-shadow: 0 0 0 4px rgba(22,163,74,0.12);
+  }
+  .topbar-left .dot.off{ background: var(--bad); box-shadow: 0 0 0 4px rgba(220,38,38,0.12); }
+  .topbar h1{ font-size:15.5px; font-weight:700; letter-spacing:-0.01em; }
+  .topbar .subtitle{ font-size:12px; color:var(--ink-faint); margin-left:2px; }
+
+  .topbar-right{ display:flex; align-items:center; gap:14px; }
+  .live-pill{
+    display:flex; align-items:center; gap:6px;
+    font-size:11.5px; font-weight:600; color:var(--good);
+    background: #f0fdf4; border:1px solid #bbf7d0;
+    padding:5px 10px; border-radius:999px;
+  }
+  .live-pill .pulse{
+    width:6px; height:6px; border-radius:50%; background: var(--good);
+    animation: pulse 1.6s ease-in-out infinite;
+  }
+  @keyframes pulse{
+    0%{ box-shadow:0 0 0 0 rgba(22,163,74,0.5); }
+    70%{ box-shadow:0 0 0 6px rgba(22,163,74,0); }
+    100%{ box-shadow:0 0 0 0 rgba(22,163,74,0); }
+  }
+  .icon-btn{
+    background:#fff; border:1px solid var(--line);
+    width:34px; height:34px; border-radius:9px;
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; transition: background .15s, transform .12s;
+  }
+  .icon-btn:hover{ background:#f4f5f7; }
+  .icon-btn:active{ transform: scale(0.94); }
+  .icon-btn svg{ width:16px; height:16px; }
+
+  .llm-toggle-btn{
+    border:none; border-radius:9px;
+    padding: 8px 14px;
+    font-size:13px; font-weight:600;
+    cursor:pointer; transition: all .15s;
+    background: #fef2f2; color: var(--bad); border:1px solid #fecaca;
+  }
+  .llm-toggle-btn:hover{ background:#fee2e2; }
+  .llm-toggle-btn:active{ transform: scale(0.97); }
+  .llm-toggle-btn:disabled{ opacity:0.6; cursor:not-allowed; }
+  .llm-toggle-btn.paused{
+    background: #f0fdf4; color: var(--good); border:1px solid #bbf7d0;
+  }
+  .llm-toggle-btn.paused:hover{ background:#dcfce7; }
+
+  .logout-btn{
+    background:#fff; border:1px solid var(--line);
+    padding: 8px 14px; border-radius:9px;
+    font-size:13px; font-weight:600; color:var(--ink-soft);
+    cursor:pointer; transition: all .15s;
+    display:flex; align-items:center; gap:6px;
+  }
+  .logout-btn:hover{ background:#fef2f2; border-color:#fecaca; color:var(--bad); }
+
+  .container{
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 28px 32px 64px;
+  }
+
+  #status-banner{
+    padding: 11px 16px; border-radius:10px; font-size:13px;
+    margin-bottom:20px; display:none; font-weight:500;
+  }
+  #status-banner.error{ background:#fef2f2; color:#b91c1c; border:1px solid #fecaca; display:flex; align-items:center; gap:8px; }
+
+  /* eyebrow row */
+  .eyebrow-row{
+    display:flex; align-items:baseline; justify-content:space-between;
+    margin-bottom:18px;
+  }
+  .eyebrow{
+    font-size:11px; font-weight:700; letter-spacing:0.08em;
+    text-transform:uppercase; color:var(--ink-faint);
+  }
+  .updated-at{ font-size:12px; color:var(--ink-faint); }
+
+  /* metric grid */
+  .metric-grid{
+    display:grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 36px;
+  }
+  .metric-card{
+    background: var(--card);
+    border:1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    box-shadow: var(--shadow-sm);
+    position:relative;
+    overflow:hidden;
+    transition: box-shadow .2s, border-color .2s;
+  }
+  .metric-card:hover{ box-shadow: var(--shadow-md); border-color:#dde1e8; }
+  .metric-card .top-row{
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom:10px;
+  }
+  .metric-card .label{
+    font-size:11px; font-weight:700; color:var(--ink-faint);
+    text-transform:uppercase; letter-spacing:0.06em;
+  }
+  .metric-card .badge{
+    font-size:10px; font-weight:700; padding:2px 6px; border-radius:5px;
+  }
+  .metric-card .badge.ok{ background:#f0fdf4; color:var(--good); }
+  .metric-card .badge.mid{ background:#fffbeb; color:var(--warn); }
+  .metric-card .badge.high{ background:#fef2f2; color:var(--bad); }
+  .metric-card .value{
+    font-size: 28px; font-weight:800; letter-spacing:-0.02em;
+    font-family:'JetBrains Mono', monospace;
+  }
+  .metric-card .sub{ font-size:12px; color:var(--ink-faint); margin-top:4px; }
+  .metric-card .bar-track{
+    height:4px; background:#f1f2f5; border-radius:3px; margin-top:12px; overflow:hidden;
+  }
+  .metric-card .bar-fill{
+    height:100%; border-radius:3px; width:0%;
+    background: var(--accent);
+    transition: width .6s cubic-bezier(.22,.9,.3,1);
+  }
+
+  /* charts */
+  .chart-grid{
+    display:grid;
+    grid-template-columns: 1.6fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  .chart-card{
+    background: var(--card);
+    border:1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 22px 22px 12px;
+    box-shadow: var(--shadow-sm);
+  }
+  .chart-card.full{ grid-column: 1 / -1; }
+  .chart-head{
+    display:flex; align-items:flex-start; justify-content:space-between;
+    margin-bottom: 16px;
+  }
+  .chart-head h3{ font-size:14px; font-weight:700; letter-spacing:-0.005em; }
+  .chart-head .desc{ font-size:12px; color:var(--ink-faint); margin-top:2px; }
+  .legend-dots{ display:flex; gap:14px; }
+  .legend-dots span{
+    font-size:11.5px; color:var(--ink-soft); display:flex; align-items:center; gap:6px; font-weight:500;
+  }
+  .legend-dots .sw{ width:8px; height:8px; border-radius:2px; }
+
+  .chart-row-2{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap:16px;
+    margin-top:16px;
+  }
+
+  canvas{ max-height:260px; }
+
+  .skeleton{
+    height:14px; width:60%; border-radius:6px;
+    background: linear-gradient(90deg, #eee 25%, #f5f5f5 37%, #eee 63%);
+    background-size: 400% 100%;
+    animation: shimmer 1.4s ease infinite;
+  }
+  @keyframes shimmer{
+    0%{ background-position: 100% 50%; }
+    100%{ background-position: 0 50%; }
+  }
+
+  @media (max-width: 980px){
+    .metric-grid{ grid-template-columns: repeat(2,1fr); }
+    .chart-grid{ grid-template-columns: 1fr; }
+    .chart-row-2{ grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+{% csrf_token %}
+
+  <!-- ================= LOGIN SECTION ================= -->
+  <div id="login-section">
+    <div class="login-card" id="login-card">
+      <div class="login-brand"><span class="dot"></span><span>Ask Rithik</span></div>
+      <h2>Sign in to your dashboard</h2>
+      <p>Monitor usage, tokens and rate limits in real time.</p>
+
+      <div class="field">
+        <label for="username">Username</label>
+        <input type="text" id="username" placeholder="admin" autocomplete="username">
+      </div>
+      <div class="field">
+        <label for="password">Password</label>
+        <input type="password" id="password" placeholder="••••••••" autocomplete="current-password">
+      </div>
+      <button id="login-btn">Log in</button>
+      <div id="login-error"></div>
+    </div>
+  </div>
+
+  <!-- ================= DASHBOARD SECTION ================= -->
+  <div id="dashboard-section">
+
+    <div class="topbar">
+      <div class="topbar-left">
+        <span class="dot" id="status-dot"></span>
+        <h1>Ask Rithik</h1>
+        <span class="subtitle">/ Analytics</span>
+      </div>
+      <div class="topbar-right">
+        <div class="live-pill"><span class="pulse"></span>Live</div>
+        <button class="llm-toggle-btn" id="llm-toggle-btn">Stop LLM</button>
+        <button class="icon-btn" id="refresh-btn" title="Refresh now">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#0f1115" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+        </button>
+        <button class="logout-btn" id="logout-btn">Log out</button>
+      </div>
+    </div>
+
+    <div class="container">
+
+      <div id="status-banner"></div>
+
+      <div class="eyebrow-row" data-aos="fade-up" data-aos-duration="500">
+        <span class="eyebrow">Current rates</span>
+        <span class="updated-at" id="updated-at">—</span>
+      </div>
+
+      <div class="metric-grid" id="metric-grid">
+        <!-- metric cards injected here -->
+      </div>
+
+      <div class="chart-grid">
+        <div class="chart-card full" data-aos="fade-up" data-aos-duration="600">
+          <div class="chart-head">
+            <div>
+              <h3>Last 30 minutes</h3>
+              <div class="desc">Requests and total tokens, per minute</div>
+            </div>
+            <div class="legend-dots">
+              <span><span class="sw" style="background:#2f5bff"></span>Requests</span>
+              <span><span class="sw" style="background:#c7d2fe"></span>Tokens</span>
+            </div>
+          </div>
+          <canvas id="chart-30min" height="80"></canvas>
+        </div>
+      </div>
+
+      <div class="chart-row-2">
+        <div class="chart-card" data-aos="fade-up" data-aos-duration="600" data-aos-delay="80">
+          <div class="chart-head">
+            <div>
+              <h3>Today, by hour</h3>
+              <div class="desc">Requests over the last 24 hours</div>
+            </div>
+          </div>
+          <canvas id="chart-hourly" height="90"></canvas>
+        </div>
+
+        <div class="chart-card" data-aos="fade-up" data-aos-duration="600" data-aos-delay="140">
+          <div class="chart-head">
+            <div>
+              <h3>Last 7 days</h3>
+              <div class="desc">Daily request volume</div>
+            </div>
+          </div>
+          <canvas id="chart-weekly" height="90"></canvas>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+<script>
+/* ============================================================
+   AUTH + DATA — logic unchanged from prior version, just
+   organized alongside the new visuals.
+============================================================ */
+const loginSection = document.getElementById("login-section");
+const dashboardSection = document.getElementById("dashboard-section");
+const loginError = document.getElementById("login-error");
+const statusBanner = document.getElementById("status-banner");
+const statusDot = document.getElementById("status-dot");
+const updatedAtEl = document.getElementById("updated-at");
+const loginBtn = document.getElementById("login-btn");
+
+let chart30, chartHourly, chartWeekly;
+let refreshInterval;
+let firstLoad = true;
+
+function getCookie(name) {
+  const match = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+  return match ? match.pop() : '';
+}
+
+function getCsrfToken() {
+  const input = document.querySelector('input[name="csrfmiddlewaretoken"]');
+  if (input && input.value) return input.value;
+  return getCookie('csrftoken'); // fallback if cookie isn't HttpOnly
+}
+
+if (typeof AOS !== "undefined") {
+  AOS.init({ once: true, disable: 'mobile' });
+}
+
+async function checkAuth() {
+  const res = await fetch("/api/check-auth/", { credentials: "same-origin" });
+  const data = await res.json();
+  return data.authenticated;
+}
+
+async function showCorrectSection() {
+  const isAuthed = await checkAuth();
+  if (isAuthed) {
+    loginSection.style.display = "none";
+    dashboardSection.style.display = "block";
+    animateDashboardIn();
+    loadDashboard();
+    clearInterval(refreshInterval);
+    refreshInterval = setInterval(loadDashboard, 30000);
+  } else {
+    clearInterval(refreshInterval);
+    dashboardSection.style.display = "none";
+    loginSection.style.display = "flex";
+    animateLoginIn();
+  }
+}
+
+function animateLoginIn(){
+  gsap.fromTo("#login-card",
+    { opacity:0, y:18, scale:0.98 },
+    { opacity:1, y:0, scale:1, duration:0.55, ease:"power3.out" }
+  );
+}
+
+function animateDashboardIn(){
+  if(!firstLoad) return;
+  firstLoad = false;
+  gsap.fromTo(".topbar", { opacity:0, y:-12 }, { opacity:1, y:0, duration:0.5, ease:"power2.out" });
+}
+
+/* ---------- LOGIN ---------- */
+loginBtn.addEventListener("click", handleLogin);
+document.getElementById("password").addEventListener("keydown", (e) => {
+  if (e.key === "Enter") handleLogin();
+});
+
+async function handleLogin() {
+  const username = document.getElementById("username").value.trim();
+  const password = document.getElementById("password").value.trim();
+  loginError.style.display = "none";
+  loginBtn.disabled = true;
+  loginBtn.textContent = "Signing in…";
+
+  try {
+    const res = await fetch("/api/login/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "same-origin",
+      body: JSON.stringify({ username, password })
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      showCorrectSection();
+    } else {
+      shakeCard();
+      loginError.textContent = data.message || "Login failed.";
+      loginError.style.display = "block";
+    }
+  } catch (err) {
+    loginError.textContent = "Network error. Please try again.";
+    loginError.style.display = "block";
+  } finally {
+    loginBtn.disabled = false;
+    loginBtn.textContent = "Log in";
+  }
+}
+
+function shakeCard(){
+  gsap.fromTo("#login-card",
+    { x: -8 },
+    { x: 0, duration:0.4, ease:"elastic.out(1, 0.3)" }
+  );
+}
+
+/* ---------- LOGOUT ---------- */
+document.getElementById("logout-btn").addEventListener("click", async () => {
+  await fetch("/api/logout/", { credentials: "same-origin" });
+  firstLoad = true;
+  showCorrectSection();
+});
+
+/* ---------- STOP / START LLM ---------- */
+const llmToggleBtn = document.getElementById("llm-toggle-btn");
+
+function renderLlmToggle(isActive) {
+  if (isActive) {
+    llmToggleBtn.textContent = "Stop LLM";
+    llmToggleBtn.classList.remove("paused");
+    statusDot.classList.remove("off");
+  } else {
+    llmToggleBtn.textContent = "Start LLM";
+    llmToggleBtn.classList.add("paused");
+    statusDot.classList.add("off");
+  }
+}
+
+llmToggleBtn.addEventListener("click", async () => {
+  const confirmMsg = llmToggleBtn.classList.contains("paused")
+    ? "Turn the LLM back on for all users?"
+    : "Stop the LLM for all users right now?";
+
+  if (!window.confirm(confirmMsg)) return;
+
+  llmToggleBtn.disabled = true;
+  try {
+    const res = await fetch("/api/toggle-llm/", {
+      method: "POST",
+      credentials: "same-origin",
+      headers: { "X-CSRFToken": getCsrfToken() }
+    });
+
+    if (res.status === 401) {
+      showBanner("Session expired or unauthorized. Please log in again.");
+      return;
+    }
+
+    const data = await res.json();
+    renderLlmToggle(data.is_active);
+  } catch (err) {
+    showBanner("Could not reach the server. Please try again.");
+  } finally {
+    llmToggleBtn.disabled = false;
+  }
+});
+
+/* ---------- MANUAL REFRESH ---------- */
+document.getElementById("refresh-btn").addEventListener("click", () => {
+  gsap.to("#refresh-btn svg", { rotate: 360, duration: 0.5, ease: "power2.inOut" });
+  loadDashboard();
+});
+
+/* ---------- LOAD DASHBOARD DATA ---------- */
+async function loadDashboard() {
+  let res;
+  try {
+    res = await fetch("/api/analytics/", { credentials: "same-origin" });
+  } catch (err) {
+    showBanner("Network error while fetching analytics.");
+    return;
+  }
+
+  if (res.status === 401) {
+    statusBanner.textContent = "Session expired or unauthorized. Please log in again.";
+    statusBanner.classList.add("error");
+    statusBanner.style.display = "flex";
+    dashboardSection.style.display = "none";
+    loginSection.style.display = "flex";
+    animateLoginIn();
+    clearInterval(refreshInterval);
+    return;
+  }
+
+  statusBanner.classList.remove("error");
+  statusBanner.style.display = "none";
+  statusDot.classList.remove("off");
+
+  const data = await res.json();
+  renderMetricCards(data.current || {});
+  renderTimeSeriesCharts(data.last_30_min || [], data.today_hourly || [], data.week_daily || []);
+  if (data.llm_status) renderLlmToggle(data.llm_status.is_active);
+  updatedAtEl.textContent = "Updated " + new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+}
+
+function showBanner(msg){
+  statusBanner.textContent = msg;
+  statusBanner.classList.add("error");
+  statusBanner.style.display = "flex";
+}
+
+/* ---------- RENDER METRIC CARDS ---------- */
+const METRIC_DEFS = [
+  { key: "rpm",  label: "RPM",  sub: "requests / min",   limit: 30 },
+  { key: "rpd",  label: "RPD",  sub: "requests / day",   limit: 1000 },
+  { key: "tpm",  label: "TPM",  sub: "tokens / min",     limit: 8000 },
+  { key: "tpd",  label: "TPD",  sub: "tokens / day",     limit: 200000 },
+  { key: "itpm", label: "ITPM", sub: "input tok / min",  limit: 8000 },
+  { key: "otpm", label: "OTPM", sub: "output tok / min", limit: 8000 },
+  { key: "ash",  label: "ASH",  sub: "audio sec / hour", limit: null },
+  { key: "asd",  label: "ASD",  sub: "audio sec / day",  limit: null },
+];
+
+function renderMetricCards(current) {
+  const grid = document.getElementById("metric-grid");
+  const isFirstRender = grid.children.length === 0;
+
+  grid.innerHTML = METRIC_DEFS.map(def => {
+    const value = current[def.key] ?? 0;
+    let pct = 0, badgeClass = "ok", badgeText = "OK";
+
+    if (def.limit) {
+      pct = Math.min(100, Math.round((value / def.limit) * 100));
+      if (pct >= 90) { badgeClass = "high"; badgeText = "HIGH"; }
+      else if (pct >= 60) { badgeClass = "mid"; badgeText = "MID"; }
+    }
+
+    const displayValue = typeof value === "number" ? value.toLocaleString() : value;
+
+    return `
+      <div class="metric-card" data-aos="fade-up" data-aos-duration="500">
+        <div class="top-row">
+          <span class="label">${def.label}</span>
+          ${def.limit ? `<span class="badge ${badgeClass}">${badgeText}</span>` : ``}
+        </div>
+        <div class="value" data-count="${value}">${def.limit ? "0" : displayValue}</div>
+        <div class="sub">${def.sub}${def.limit ? ` · limit ${def.limit.toLocaleString()}` : ""}</div>
+        ${def.limit ? `<div class="bar-track"><div class="bar-fill" style="width:0%" data-target="${pct}"></div></div>` : ``}
+      </div>
+    `;
+  }).join("");
+
+  if (typeof AOS !== "undefined") AOS.refreshHard();
+
+  // Animate numbers counting up + bar fills
+  requestAnimationFrame(() => {
+    document.querySelectorAll(".metric-card .value").forEach(el => {
+      const target = Number(el.getAttribute("data-count")) || 0;
+      if (el.textContent === "0" && target > 0) {
+        gsap.to({ val: 0 }, {
+          val: target,
+          duration: 0.9,
+          ease: "power2.out",
+          onUpdate: function () {
+            el.textContent = Math.round(this.targets()[0].val).toLocaleString();
+          }
+        });
+      }
+    });
+    document.querySelectorAll(".bar-fill").forEach(el => {
+      const target = Number(el.getAttribute("data-target")) || 0;
+      requestAnimationFrame(() => { el.style.width = target + "%"; });
+    });
+  });
+}
+
+/* ---------- CHART.JS DEFAULTS ---------- */
+Chart.defaults.font.family = "'Inter', sans-serif";
+Chart.defaults.color = "#9aa1ac";
+Chart.defaults.font.size = 11;
+
+const gridOpts = {
+  grid: { color: "rgba(15,23,42,0.05)", drawTicks: false },
+  border: { display: false },
+  ticks: { padding: 8 }
+};
+
+/* ---------- RENDER CHARTS ---------- */
+function renderTimeSeriesCharts(last30, hourly, weekly) {
+  const ctx30 = document.getElementById("chart-30min").getContext("2d");
+  const ctxHourly = document.getElementById("chart-hourly").getContext("2d");
+  const ctxWeekly = document.getElementById("chart-weekly").getContext("2d");
+
+  // gradient fill for area chart
+  const gradient = ctx30.createLinearGradient(0, 0, 0, 240);
+  gradient.addColorStop(0, "rgba(47,91,255,0.16)");
+  gradient.addColorStop(1, "rgba(47,91,255,0.0)");
+
+  const gradientTokens = ctx30.createLinearGradient(0, 0, 0, 240);
+  gradientTokens.addColorStop(0, "rgba(199,210,254,0.5)");
+  gradientTokens.addColorStop(1, "rgba(199,210,254,0.0)");
+
+  if (chart30) chart30.destroy();
+  if (chartHourly) chartHourly.destroy();
+  if (chartWeekly) chartWeekly.destroy();
+
+  chart30 = new Chart(ctx30, {
+    type: "line",
+    data: {
+      labels: last30.map(d => new Date(d.bucket).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})),
+      datasets: [
+        {
+          label: "Requests",
+          data: last30.map(d => d.requests),
+          borderColor: "#2f5bff",
+          backgroundColor: gradient,
+          borderWidth: 2.4,
+          fill: true,
+          tension: 0.42,
+          pointRadius: 0,
+          pointHoverRadius: 5,
+          pointHoverBackgroundColor: "#2f5bff",
+          pointHoverBorderColor: "#fff",
+          pointHoverBorderWidth: 2,
+        },
+        {
+          label: "Tokens",
+          data: last30.map(d => d.tokens),
+          borderColor: "#a5b4fc",
+          backgroundColor: gradientTokens,
+          borderWidth: 2,
+          fill: true,
+          tension: 0.42,
+          pointRadius: 0,
+          pointHoverRadius: 4,
+          yAxisID: "y1",
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: "index", intersect: false },
+      animation: { duration: 800, easing: "easeOutQuart" },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: "#0f1115",
+          padding: 10,
+          cornerRadius: 8,
+          titleFont: { weight: 600, size: 12 },
+          bodyFont: { size: 12 },
+          displayColors: true,
+        }
+      },
+      scales: {
+        x: { ...gridOpts, grid: { display: false } },
+        y: { ...gridOpts, position: "left" },
+        y1: { display: false, position: "right" }
+      }
+    }
+  });
+
+  chartHourly = new Chart(ctxHourly, {
+    type: "bar",
+    data: {
+      labels: hourly.map(d => new Date(d.bucket).toLocaleTimeString([], {hour:'2-digit'})),
+      datasets: [
+        {
+          label: "Requests",
+          data: hourly.map(d => d.requests),
+          backgroundColor: "#0f1115",
+          borderRadius: 5,
+          maxBarThickness: 18,
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: { duration: 700, easing: "easeOutQuart" },
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { ...gridOpts, grid: { display: false } },
+        y: gridOpts
+      }
+    }
+  });
+
+  chartWeekly = new Chart(ctxWeekly, {
+    type: "bar",
+    data: {
+      labels: weekly.map(d => new Date(d.bucket).toLocaleDateString([], {weekday:'short'})),
+      datasets: [
+        {
+          label: "Requests",
+          data: weekly.map(d => d.requests),
+          backgroundColor: "#2f5bff",
+          borderRadius: 5,
+          maxBarThickness: 26,
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: { duration: 700, easing: "easeOutQuart" },
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { ...gridOpts, grid: { display: false } },
+        y: gridOpts
+      }
+    }
+  });
+}
+
+/* ---------- INIT ---------- */
+showCorrectSection();
+</script>
+
+</body>
+</html>

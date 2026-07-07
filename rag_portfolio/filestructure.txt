@@ -1,0 +1,75 @@
+|-- .env
+|-- assitant
+    |-- admin.py
+    |-- analytics.py
+    |-- apps.py
+    |-- data
+        |-- knowledge.txt
+        |-- resume.pdf
+    |-- faiss_index
+        |-- index.faiss
+        |-- metadata.pkl
+    |-- management
+    |-- migrations
+        |-- 0001_initial.py
+        |-- 0002_llmstatus_requests_used_today_and_more.py
+        |-- 0003_llmusagelog_remove_llmstatus_requests_used_today_and_more.py
+        |-- __init__.py
+        |-- __pycache__
+            |-- 0001_initial.cpython-310.pyc
+            |-- 0002_llmstatus_requests_used_today_and_more.cpython-310.pyc
+            |-- 0003_llmusagelog_remove_llmstatus_requests_used_today_and_more.cpython-310.pyc
+            |-- __init__.cpython-310.pyc
+    |-- models.py
+    |-- rag
+        |-- embedding.py
+        |-- llm.py
+        |-- loader.py
+        |-- pipeline.py
+        |-- prompt_builder.py
+        |-- retriever.py
+        |-- splitter.py
+        |-- vector_store.py
+        |-- __pycache__
+            |-- embedding.cpython-310.pyc
+            |-- llm.cpython-310.pyc
+            |-- loader.cpython-310.pyc
+            |-- pipeline.cpython-310.pyc
+            |-- prompt_builder.cpython-310.pyc
+            |-- retriever.cpython-310.pyc
+            |-- splitter.cpython-310.pyc
+            |-- vector_store.cpython-310.pyc
+    |-- templates
+        |-- dashboard.html
+        |-- index.html
+    |-- tests.py
+    |-- urls.py
+    |-- usage_tracker.py
+    |-- views.py
+    |-- __init__.py
+    |-- __pycache__
+        |-- admin.cpython-310.pyc
+        |-- analytics.cpython-310.pyc
+        |-- apps.cpython-310.pyc
+        |-- models.cpython-310.pyc
+        |-- urls.cpython-310.pyc
+        |-- usage_tracker.cpython-310.pyc
+        |-- views.cpython-310.pyc
+        |-- __init__.cpython-310.pyc
+|-- db.sqlite3
+|-- manage.py
+|-- rag_portfolio
+    |-- asgi.py
+    |-- settings.py
+    |-- urls.py
+    |-- wsgi.py
+    |-- __init__.py
+    |-- __pycache__
+        |-- settings.cpython-310.pyc
+        |-- urls.cpython-310.pyc
+        |-- wsgi.cpython-310.pyc
+        |-- __init__.cpython-310.pyc
+|-- test_llm.py
+|-- test_loader.py
+|-- test_rag.py
+|-- test_retriever.py
