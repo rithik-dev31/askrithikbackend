@@ -7579,6 +7579,19 @@
                 |-- REQUESTED
                 |-- top_level.txt
                 |-- WHEEL
+            |-- dj_database_url
+                |-- py.typed
+                |-- __init__.py
+                |-- __pycache__
+                    |-- __init__.cpython-310.pyc
+            |-- dj_database_url-3.1.2.dist-info
+                |-- INSTALLER
+                |-- licenses
+                    |-- LICENSE
+                |-- METADATA
+                |-- RECORD
+                |-- REQUESTED
+                |-- WHEEL
             |-- dotenv
                 |-- cli.py
                 |-- ipython.py
